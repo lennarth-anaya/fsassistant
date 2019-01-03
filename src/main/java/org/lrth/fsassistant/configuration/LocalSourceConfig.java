@@ -13,4 +13,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class LocalSourceConfig {
 	@NotNull private String folder;
 	@NotNull private List<String> fileExtensions;
+	@NotNull private Integer maxExpectedFilesBeforeRemoval;
 }

@@ -2,6 +2,7 @@
 fs-assistant:
   local-source:
     folder: /media/pi/video
+    max-expected-files-before-removal: 2000
     file-extensions:
       - *.h264
 

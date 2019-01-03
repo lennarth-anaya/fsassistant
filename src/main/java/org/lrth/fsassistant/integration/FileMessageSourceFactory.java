@@ -1,8 +1,12 @@
 package org.lrth.fsassistant.integration;
 
+import java.io.File;
 import java.util.Optional;
 
-import org.springframework.context.annotation.Component;
+import org.springframework.integration.core.MessageSource;
+import org.springframework.integration.file.FileReadingMessageSource;
+import org.springframework.integration.file.filters.CompositeFileListFilter;
+import org.springframework.stereotype.Component;
 
 /**
  * @author lanaya
@@ -16,7 +20,7 @@ public class FileMessageSourceFactory {
       final String folder,
       final Optional<CompositeFileListFilter<File>> optionalFilters
    ) {
-   	FileReadingMessageSource source = new FileReadingMessageSource();
+   	  FileReadingMessageSource source = new FileReadingMessageSource();
    	
       source.setAutoCreateDirectory(true);
       source.setDirectory(new File(folder));

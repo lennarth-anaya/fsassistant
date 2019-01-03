@@ -1,11 +1,8 @@
 package org.lrth.fsassistant.appcontext;
 
-import java.util.Date;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.Trigger;
-import org.springframework.scheduling.TriggerContext;
 import org.springframework.scheduling.support.CronTrigger;
 
 import org.lrth.fsassistant.configuration.FileTransferConfig;
@@ -20,30 +17,30 @@ public class RefreshableTriggers {
    private String prevFileTransferCronExp = null;
    private CronTrigger fileTransferCronTrigger;
 
-   private String prevFileCleanerCronExp = null;
+   private String prevFolderCleanerCronExp = null;
    private CronTrigger folderCleanerCronTrigger;
 
    public RefreshableTriggers(
       FileTransferConfig fileTransferConfig,
-      FolderCleanerConfig folderCleanerCronTrigger
+      FolderCleanerConfig folderCleanerConfig
    ) {
       this.fileTransferConfig = fileTransferConfig;
-      this.folderCleanerCronTrigger = folderCleanerCronTrigger;
+      this.folderCleanerConfig = folderCleanerConfig;
    }
    
    @Bean("fileTransferTrigger")
    public Trigger fileTransferTrigger() {
-   	return (tctx) -> {
-         // this is the trick, exposing config via JMX or other mean would refresh the trigger
-         final String curCronExp = this.fileTransferConfig.getCron();
+       return (tctx) -> {
+           // this is the trick, exposing config via JMX or other mean would refresh the trigger
+           final String curCronExp = this.fileTransferConfig.getCron();
 
-         if (!curCronExp.equals(this.prevFileTransferCronExp)) {
-            this.prevFileTransferCronExp = curCronExp;
-            this.fileTransferCronTrigger = new CronTrigger(curCronExp);
-         }
+           if (!curCronExp.equals(this.prevFileTransferCronExp)) {
+               this.prevFileTransferCronExp = curCronExp;
+               this.fileTransferCronTrigger = new CronTrigger(curCronExp);
+           }
          
-         return this.fileTransferCronTrigger;
-      };
+           return this.fileTransferCronTrigger.nextExecutionTime(tctx);
+       };
    }
 
    @Bean("folderCleanerTrigger")
@@ -57,7 +54,7 @@ public class RefreshableTriggers {
             this.folderCleanerCronTrigger = new CronTrigger(curCronExp);
          }
          
-         return this.folderCleanerCronTrigger;
+         return this.folderCleanerCronTrigger.nextExecutionTime(tctx);
       };
    }
    
