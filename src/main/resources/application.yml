@@ -2,20 +2,27 @@
 fs-assistant:
   local-source:
     folder: /media/pi/video
-    max-expected-files-before-removal: 2000
+    max-expected-files: 2000
     file-extensions:
       - *.h264
+
+  sftp-source:
+    host: 
+    private-key: 
+    private-key-passphrase: 
+    port: 22
+    user: 
 
   file-transfer:
     # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
     cron: 0 0/15 * * * * *
     remote-destination-folder: /files/raspberry
-    inputChannelId: transferInputChannel
+    inputChannelId: filesTransferChannel
     suspend: false
 
   folder-cleaner:
     # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
     cron: 0 7 * * * * *
-    inputChannelId: cleanerInputChannel
+    inputChannelId: folderCleanerChannel
     suspend: false
   
