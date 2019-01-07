@@ -9,6 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix="fs-assistant.folder-cleaner")
 @Getter @Setter
 public class FolderCleanerConfig {
-    @NotNull private String cron;
-    @NotNull private boolean suspend;
+    @NotNull private TaskConfig task;
+    @NotNull private VolumeConfigRef targetVolume;
+
+    @NotNull private String channel;
 }

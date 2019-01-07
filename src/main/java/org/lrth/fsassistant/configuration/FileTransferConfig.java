@@ -10,8 +10,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix="fs-assistant.file-transfer")
 @Getter @Setter
 public class FileTransferConfig {
-	// attributes not listed here are directly injected via annotations
-	@NotNull private String cron;
-	@NotNull private String remoteDestinationFolder;
-	@NotNull private boolean suspend;
+	@NotNull private TaskConfig task;
+	@NotNull private VolumeConfigRef sourceVolume;
+	@NotNull private VolumeConfigRef targetVolume;
+
+	@NotNull private String channel;
 }

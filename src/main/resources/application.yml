@@ -1,28 +1,50 @@
 
 fs-assistant:
-  local-source:
-    folder: /media/pi/video
-    max-expected-files: 2000
-    file-extensions:
-      - *.h264
 
-  sftp-source:
-    host: 
-    private-key: 
-    private-key-passphrase: 
-    port: 22
-    user: 
+  volumes:
+    transferSource:
+      type: sftp
+      path: /media/pi/video
+      host:
+      port: 22
+      user:
+      private-key:
+      private-key-passphrase:
+    transferDest:
+      type: local
+      path: /home/dlink/ftp/files/raspberry
+    folderCleanup:
+      type: local
+      path: /home/dlink/ftp/files/
 
   file-transfer:
-    # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-    cron: 0 0/15 * * * * *
-    remote-destination-folder: /files/raspberry
-    inputChannelId: filesTransferChannel
-    suspend: false
+    task:
+      # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+      cron: 0 0/15 * * * * *
+      force-suspend: false
+      simulation-mode: false
+      debug-logger-level: false
+    source-volume:
+      volumeRef: transferSource
+      file-extensions:
+        - *.h264
+      delete-remote-files: true
+    target-volume:
+      volumeRef: transferDest
+    # channel is not of interest to end user
+    channel: filesTransferChannel
 
   folder-cleaner:
-    # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-    cron: 0 7 * * * * *
-    inputChannelId: folderCleanerChannel
-    suspend: false
-  
+    task:
+      # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+      cron: 0 7 * * * * *
+      force-suspend: false
+      simulation-mode: false
+      debug-logger-level: false
+    target-volume:
+      volumeRef: folderCleanup
+      file-extensions:
+        - *.h264
+        - *.avi
+    # channel is not of interest to end user
+    channel: folderCleanerChannel
