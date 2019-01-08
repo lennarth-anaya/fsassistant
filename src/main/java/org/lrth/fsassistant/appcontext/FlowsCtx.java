@@ -7,11 +7,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 
+// TODO delete this whole class
 @Configuration
-public class Flows {
+public class FlowsCtx {
 
-    @Value("${fs-assistant.file-transfer.inputChannelId}")
-    private String fileTransferChannelId;
+    @Value("${fs-assistant.file-poller.inputChannelId}")
+    private String filePollerChannelId;
 
     @Value("${fs-assistant.folder-cleaner.inputChannelId}")
     private String folderCleanerChannelId;
@@ -19,7 +20,7 @@ public class Flows {
     @Bean
     public IntegrationFlow fileTransferringFlow() {
         return IntegrationFlows
-            .from(fileTransferChannelId)
+            .from(filePollerChannelId)
             .transform(fileToStringTransformer())
             .get();
     }

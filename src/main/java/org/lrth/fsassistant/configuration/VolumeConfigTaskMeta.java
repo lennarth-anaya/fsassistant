@@ -11,10 +11,9 @@ import java.util.List;
  * be referred by tasks when actually manipulating them.
  */
 @Getter @Setter
-public class VolumeConfigRef {
+public class VolumeConfigTaskMeta {
     @NotNull private String volumeRef;
     @NotNull private List<String> fileExtensions;
-
-    /** Useful for tasks dealing with SFTP volumes */
-    private Boolean deleteRemoteFiles;
+    private Boolean autoCreateDirectory;
+    private Boolean deleteSourceFiles;
 }

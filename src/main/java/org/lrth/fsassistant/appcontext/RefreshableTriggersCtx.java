@@ -1,18 +1,24 @@
 package org.lrth.fsassistant.appcontext;
 
+import lombok.RequiredArgsConstructor;
+import org.lrth.fsassistant.configuration.FileUploaderConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.support.CronTrigger;
 
-import org.lrth.fsassistant.configuration.FileTransferConfig;
+import org.lrth.fsassistant.configuration.FileDownloaderConfig;
 import org.lrth.fsassistant.configuration.FolderCleanerConfig;
 
-@Configuration
-public class RefreshableTriggers {
+import javax.validation.constraints.NotNull;
 
-   private FileTransferConfig fileTransferConfig;
-   private FolderCleanerConfig folderCleanerConfig;
+@Configuration
+@RequiredArgsConstructor
+public class RefreshableTriggersCtx {
+
+   @NotNull private FileUploaderConfig filesUploaderConfig;
+   @NotNull private FileDownloaderConfig filesDownloaderonfig;
+   @NotNull private FolderCleanerConfig folderCleanerConfig;
    
    private String prevFileTransferCronExp = null;
    private CronTrigger fileTransferCronTrigger;
@@ -20,19 +26,11 @@ public class RefreshableTriggers {
    private String prevFolderCleanerCronExp = null;
    private CronTrigger folderCleanerCronTrigger;
 
-   public RefreshableTriggers(
-      FileTransferConfig fileTransferConfig,
-      FolderCleanerConfig folderCleanerConfig
-   ) {
-      this.fileTransferConfig = fileTransferConfig;
-      this.folderCleanerConfig = folderCleanerConfig;
-   }
-   
-   @Bean("fileTransferTrigger")
-   public Trigger fileTransferTrigger() {
+   @Bean("filesUploaderTrigger")
+   public Trigger filesUploaderTrigger() {
        return (tctx) -> {
            // this is the trick, exposing config via JMX or other mean would refresh the trigger
-           final String curCronExp = this.fileTransferConfig.getCron();
+           final String curCronExp = this.filesUploaderConfig.getTask().getCron();
 
            if (!curCronExp.equals(this.prevFileTransferCronExp)) {
                this.prevFileTransferCronExp = curCronExp;
@@ -43,11 +41,26 @@ public class RefreshableTriggers {
        };
    }
 
+   @Bean("filesDownloaderTrigger")
+   public Trigger filesDownloaderTrigger() {
+       return (tctx) -> {
+           // this is the trick, exposing config via JMX or other mean would refresh the trigger
+           final String curCronExp = this.filesDownloaderonfig.getTask().getCron();
+
+           if (!curCronExp.equals(this.prevFileTransferCronExp)) {
+               this.prevFileTransferCronExp = curCronExp;
+               this.fileTransferCronTrigger = new CronTrigger(curCronExp);
+           }
+
+           return this.fileTransferCronTrigger.nextExecutionTime(tctx);
+       };
+   }
+
    @Bean("folderCleanerTrigger")
    public Trigger folderCleanerTrigger() {
    	return (tctx) -> {
          // this is the trick, exposing config via JMX or other mean would refresh the trigger
-         final String curCronExp = this.folderCleanerConfig.getCron();
+         final String curCronExp = this.folderCleanerConfig.getTask().getCron();
 
          if (!curCronExp.equals(this.prevFolderCleanerCronExp)) {
             this.prevFolderCleanerCronExp = curCronExp;
