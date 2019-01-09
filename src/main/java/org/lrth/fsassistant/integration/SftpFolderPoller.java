@@ -1,6 +1,9 @@
 package org.lrth.fsassistant.integration;
 
 import org.lrth.fsassistant.configuration.FileDownloaderConfig;
+import org.lrth.fsassistant.configuration.PipeConfig;
+import org.lrth.fsassistant.configuration.VolumesConfig;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.annotation.InboundChannelAdapter;
 import org.springframework.integration.annotation.Poller;
@@ -15,7 +18,15 @@ import java.io.File;
 public class SftpFolderPoller {
 
     @NotNull private SftpInboundFileSynchronizer downloaderSftpFileSynchronizer;
-    @NotNull private FileDownloaderConfig config;
+    // @NotNull private FileDownloaderConfig config;
+    @NotNull private MyPipeConfig config;
+
+    @ConfigurationProperties(prefix="fs-assistant.file-downloder")
+    private static class MyPipeConfig extends PipeConfig {
+        public MyPipeConfig(VolumesConfig volumesConfigurations) {
+                super(volumesConfigurations);
+        }
+    }
 
     @Bean
     @InboundChannelAdapter(

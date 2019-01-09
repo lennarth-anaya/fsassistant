@@ -8,8 +8,8 @@ import javax.validation.constraints.NotNull;
 @Getter @Setter
 public class PipeConfig {
     @NotNull private TaskConfig task;
-    @NotNull private VolumeConfigTaskMeta sourceVolumeMeta;
-    @NotNull private VolumeConfigTaskMeta targetVolumeMeta;
+    private VolumeConfigTaskMeta sourceVolumeMeta;
+    private VolumeConfigTaskMeta targetVolumeMeta;
 
     private VolumesConfig volumesConfigurations;
 

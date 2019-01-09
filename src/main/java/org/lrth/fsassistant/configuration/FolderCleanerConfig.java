@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.validation.constraints.NotNull;
 
+// TODO: get rid of this, move it to integration so developer has to deal with the less
 @ConfigurationProperties(prefix="fs-assistant.folder-cleaner")
 @Getter @Setter
 public class FolderCleanerConfig extends PipeConfig {
