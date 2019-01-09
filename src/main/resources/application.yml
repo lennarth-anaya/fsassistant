@@ -19,21 +19,23 @@ fs-assistant:
       type: local
       path: /home/dlink/ftp/files/
 
+  # remote to local
   file-uploader:
     task:
-      # we don't really need it so for, TODO: test it out
+      # we don't really need it so far, TODO: test it out
       force-suspend: true
+      channel: uploadFilesChannel
     source-volume:
       volume-ref: localVideo
       auto-create-directory: true
+      max-expected-files: 500
     target-volume:
       volume-ref: some-other-volume-here
       file-extensions:
       - *.*
       delete-source-files: true
-    # channel is not of interest to end user
-    channel: uploadFilesChannel
 
+  # local to remote
   file-downloader:
     task:
       # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
@@ -41,6 +43,7 @@ fs-assistant:
       force-suspend: false
       simulation-mode: false
       debug-logger-level: false
+      channel: downloadFilesChannel
     source-volume:
       # must be a remote folder (*file downloader*)
       volume-ref: raspberryVideo
@@ -51,8 +54,21 @@ fs-assistant:
       # must be a local folder (*file downloader*)
       volume-ref: localVideo
       auto-create-directory: true
-    # channel is not of interest to end user
-    channel: downloadFilesChannel
+
+  # remote to remote
+  file-transfer:
+    task:
+      # we don't really need it so far, TODO: test it out
+      force-suspend: true
+      channel: uploadFilesChannel
+    source-volume:
+      volume-ref: some-remote-volume-here
+      auto-create-directory: true
+    target-volume:
+      volume-ref: some-other-remote-volume-here
+      file-extensions:
+      - *.*
+      delete-source-files: true
 
   folder-cleaner:
     task:
@@ -61,11 +77,10 @@ fs-assistant:
       force-suspend: false
       simulation-mode: false
       debug-logger-level: false
+      channel: folderCleanupChannel
     # source-volume doesn't make sense to cleaner task
     target-volume:
       volume-ref: folderCleanup
       file-extensions:
         - *.h264
         - *.avi
-    # channel is not of interest to end user
-    channel: folderCleanupChannel

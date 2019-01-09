@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix="fs-assistant.file-uploader")
 @Getter @Setter
-public class FileUploaderConfig extends BaseTaskConfig {
+public class FileUploaderConfig extends PipeConfig {
     public FileUploaderConfig(VolumesConfig volumesConfigurations) {
         super(volumesConfigurations);
     }

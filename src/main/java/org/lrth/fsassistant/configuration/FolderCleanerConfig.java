@@ -8,14 +8,14 @@ import javax.validation.constraints.NotNull;
 
 @ConfigurationProperties(prefix="fs-assistant.folder-cleaner")
 @Getter @Setter
-public class FolderCleanerConfig extends BaseTaskConfig {
+public class FolderCleanerConfig extends PipeConfig {
     @NotNull private TaskConfig task;
     @NotNull private VolumeConfigTaskMeta targetVolume;
 
     @NotNull private String channel;
 
     public FolderCleanerConfig(VolumesConfig volumesConfigurations) {
-        super(volumesConfigurations)
+        super(volumesConfigurations);
     }
 
     public VolumeConfig getSourceVolumeConfig() {

@@ -14,6 +14,7 @@ import java.util.List;
 public class VolumeConfigTaskMeta {
     @NotNull private String volumeRef;
     @NotNull private List<String> fileExtensions;
+    private int maxExpectedFiles;
     private Boolean autoCreateDirectory;
     private Boolean deleteSourceFiles;
 }

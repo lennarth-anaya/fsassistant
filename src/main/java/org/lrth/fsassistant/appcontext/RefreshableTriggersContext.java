@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 
 @Configuration
 @RequiredArgsConstructor
-public class RefreshableTriggersCtx {
+public class RefreshableTriggersContext {
 
    @NotNull private FileUploaderConfig filesUploaderConfig;
    @NotNull private FileDownloaderConfig filesDownloaderonfig;

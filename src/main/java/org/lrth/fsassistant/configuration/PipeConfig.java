@@ -6,16 +6,14 @@ import lombok.Setter;
 import javax.validation.constraints.NotNull;
 
 @Getter @Setter
-public class BaseTaskConfig {
+public class PipeConfig {
     @NotNull private TaskConfig task;
     @NotNull private VolumeConfigTaskMeta sourceVolumeMeta;
     @NotNull private VolumeConfigTaskMeta targetVolumeMeta;
 
-    @NotNull private String channel;
-
     private VolumesConfig volumesConfigurations;
 
-    public BaseTaskConfig(VolumesConfig volumesConfigurations) {
+    public PipeConfig(VolumesConfig volumesConfigurations) {
         this.volumesConfigurations = volumesConfigurations;
     }
 

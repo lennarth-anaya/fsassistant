@@ -1,5 +1,5 @@
 package org.lrth.fsassistant.integration;
 
-public class FileCleanupMessageSource {
+public class LocalFolderCleanupSink {
     // TODO
 }

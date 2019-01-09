@@ -9,7 +9,7 @@ import org.springframework.integration.dsl.IntegrationFlows;
 
 // TODO delete this whole class
 @Configuration
-public class FlowsCtx {
+public class FlowsContext {
 
     @Value("${fs-assistant.file-poller.inputChannelId}")
     private String filePollerChannelId;
