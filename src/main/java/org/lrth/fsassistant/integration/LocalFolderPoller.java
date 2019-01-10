@@ -1,26 +1,48 @@
 package org.lrth.fsassistant.integration;
 
-import org.lrth.fsassistant.configuration.FileUploaderConfig;
-import org.lrth.fsassistant.configuration.VolumeConfig;
-import org.lrth.fsassistant.configuration.VolumeConfigTaskMeta;
+import lombok.RequiredArgsConstructor;
+import org.lrth.fsassistant.appcontext.boilerplatefactory.FileReadingMessageSourceBoilerplateFactory;
+import org.lrth.fsassistant.configuration.*;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.InboundChannelAdapter;
 import org.springframework.integration.annotation.Poller;
 import org.springframework.integration.core.MessageSource;
-import org.springframework.integration.file.FileReadingMessageSource;
-import org.springframework.integration.file.filters.AcceptOnceFileListFilter;
-import org.springframework.integration.file.filters.ChainFileListFilter;
-import org.springframework.integration.file.filters.SimplePatternFileListFilter;
-import org.springframework.integration.sftp.filters.SftpPersistentAcceptOnceFileListFilter;
-import org.springframework.integration.sftp.inbound.SftpInboundFileSynchronizer;
+import org.springframework.scheduling.Trigger;
+import org.springframework.scheduling.support.CronTrigger;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
 
+@Configuration
+@RequiredArgsConstructor
 public class LocalFolderPoller {
 
-    @NotNull private SftpInboundFileSynchronizer localFolderSynchronizer;
-    @NotNull private FileUploaderConfig localFolderPollerConfig;
+    @NotNull private FileReadingMessageSourceBoilerplateFactory factory;
+    @NotNull private MyPipeConfig config;
+
+    @ConfigurationProperties(prefix = "fs-assistant.file-uploader")
+    private static class MyPipeConfig extends PipeConfig {}
+
+    private String cachedCronExp;
+    private CronTrigger cachedCronTrigger;
+
+    @Bean
+    public Trigger filesUploaderTrigger() {
+        return (tctx) -> {
+            // this is the trick for live-editable cron expression:
+            //    exposing config via JMX or other mean would refresh the trigger
+            final String curCronExp = this.config.getTask().getCron();
+
+            if (!curCronExp.equals(this.cachedCronExp)) {
+                this.cachedCronExp = curCronExp;
+                this.cachedCronTrigger = new CronTrigger(curCronExp);
+            }
+
+            return this.cachedCronTrigger.nextExecutionTime(tctx);
+        };
+    }
 
     /**
      * We could have used UploadGateway, but using Spring Integration Channels instead.
@@ -28,29 +50,11 @@ public class LocalFolderPoller {
      */
     @Bean
     @InboundChannelAdapter(
-            value = "${fs-assistant.file-uploader.task.channel}",
-            poller = @Poller(trigger = "filesUploaderTrigger")
+        value = "${fs-assistant.file-uploader.task.channel}",
+        poller = @Poller(trigger = "filesUploaderTrigger")
     )
     public MessageSource<File> fileReadingMessageSource() {
-        ChainFileListFilter<File> filters = new ChainFileListFilter<>();
-        VolumeConfig volumeConfig = localFolderPollerConfig.getSourceVolumeConfig();
-        VolumeConfigTaskMeta taskConfig = localFolderPollerConfig.getSourceVolumeMeta();
-
-        // add all file extensions from configuration
-        taskConfig.getFileExtensions().forEach(ext ->
-            filters.addFilter(new SimplePatternFileListFilter(ext)));
-
-        filters.addFilter(new AcceptOnceFileListFilter<>(
-            taskConfig.getMaxExpectedFiles()));
-
-        FileReadingMessageSource source = new FileReadingMessageSource();
-
-        source.setAutoCreateDirectory(true);
-        source.setDirectory(new File(volumeConfig.getPath()));
-
-        source.setFilter(filters);
-
-        return source;
+        return factory.create(config);
     }
 
 }

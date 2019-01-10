@@ -1,4 +1,4 @@
-package org.lrth.fsassistant.appcontext.factory;
+package org.lrth.fsassistant.appcontext.boilerplatefactory;
 
 import com.jcraft.jsch.ChannelSftp;
 import org.lrth.fsassistant.configuration.VolumeConfig;
