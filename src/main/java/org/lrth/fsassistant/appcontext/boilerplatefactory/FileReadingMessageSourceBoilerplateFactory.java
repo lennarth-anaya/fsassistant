@@ -13,19 +13,18 @@ import java.io.File;
 
 @Component
 public class FileReadingMessageSourceBoilerplateFactory {
-    public FileReadingMessageSource create(PipeConfig config) {
+    public FileReadingMessageSource create(VolumeConfigTaskMeta taskConfig) {
         FileReadingMessageSource source;
 
         ChainFileListFilter<File> filters = new ChainFileListFilter<>();
-        VolumeConfig volumeConfig = config.getSourceVolumeConfig();
-        VolumeConfigTaskMeta taskConfig = config.getSourceVolumeMeta();
+        VolumeConfig volumeConfig = taskConfig.getVolumeDef();
 
         // add all file extensions from configuration
         taskConfig.getFileExtensions().forEach(ext ->
             filters.addFilter(new SimplePatternFileListFilter(ext)));
 
         filters.addFilter(new AcceptOnceFileListFilter<>(
-                taskConfig.getMaxExpectedFiles()));
+            taskConfig.getMaxExpectedFiles()));
 
         source = new FileReadingMessageSource();
 

@@ -1,7 +1,8 @@
 package org.lrth.fsassistant.appcontext.boilerplatefactory;
 
-import com.jcraft.jsch.ChannelSftp;
-import org.lrth.fsassistant.configuration.PipeConfig;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
+import org.lrth.fsassistant.configuration.VolumeConfig;
+import org.lrth.fsassistant.configuration.VolumeConfigTaskMeta;
 import org.springframework.expression.common.LiteralExpression;
 import org.springframework.integration.file.remote.session.SessionFactory;
 import org.springframework.integration.sftp.outbound.SftpMessageHandler;
@@ -16,13 +17,13 @@ public class SftpMessageHandlerBoilerplateFactory {
     @NotNull
     private SftpSessionBoilerplateFactory sftpSessionBoilerplateFactory;
 
-    public SftpMessageHandler create(PipeConfig config) {
+    public SftpMessageHandler create(VolumeConfigTaskMeta config) {
         SftpMessageHandler handler;
 
-        String sftpRemoteDirectory = config.getTargetVolumeConfig().getPath();
+        VolumeConfig volumeDef = config.getVolumeDef();
+        String sftpRemoteDirectory = volumeDef.getPath();
 
-        SessionFactory<ChannelSftp.LsEntry> sessionFactory = sftpSessionBoilerplateFactory
-            .create(config.getSourceVolumeConfig());
+        SessionFactory<LsEntry> sessionFactory = sftpSessionBoilerplateFactory.create(volumeDef);
 
         handler = new SftpMessageHandler(sessionFactory);
         handler.setRemoteDirectoryExpression(new LiteralExpression(sftpRemoteDirectory));

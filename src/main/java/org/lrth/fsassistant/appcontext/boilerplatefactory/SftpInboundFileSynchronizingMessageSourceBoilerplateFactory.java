@@ -2,6 +2,8 @@ package org.lrth.fsassistant.appcontext.boilerplatefactory;
 
 import com.jcraft.jsch.ChannelSftp;
 import org.lrth.fsassistant.configuration.PipeConfig;
+import org.lrth.fsassistant.configuration.VolumeConfig;
+import org.lrth.fsassistant.configuration.VolumeConfigTaskMeta;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.file.filters.AcceptOnceFileListFilter;
 import org.springframework.integration.file.remote.session.SessionFactory;
@@ -21,20 +23,21 @@ public class SftpInboundFileSynchronizingMessageSourceBoilerplateFactory {
     @NotNull
     private SftpSessionBoilerplateFactory sftpSessionBoilerplateFactory;
 
-    public MessageSource<File> create(PipeConfig config) {
+    public MessageSource<File> create(VolumeConfigTaskMeta volumeTaskMeta) {
         SftpInboundFileSynchronizingMessageSource source;
 
+        VolumeConfig volumeConfig = volumeTaskMeta.getVolumeDef();
+
         SessionFactory<ChannelSftp.LsEntry> sessionFactory = sftpSessionBoilerplateFactory
-                .create(config.getSourceVolumeConfig());
+                .create(volumeConfig);
 
         SftpInboundFileSynchronizer sftpFileSynchronizer = sftpSyncFactory.create(
-                sessionFactory, config.getSourceVolumeConfig(), config.getSourceVolumeMeta());
+                sessionFactory, volumeConfig, volumeTaskMeta);
 
         source = new SftpInboundFileSynchronizingMessageSource(sftpFileSynchronizer);
 
-        source.setLocalDirectory(new File(config.getTargetVolumeConfig().getPath()));
-        source.setAutoCreateLocalDirectory(
-                config.getTargetVolumeMeta().getAutoCreateDirectory());
+        source.setLocalDirectory(new File(volumeConfig.getPath()));
+        source.setAutoCreateLocalDirectory(volumeTaskMeta.getAutoCreateDirectory());
         source.setLocalFilter(new AcceptOnceFileListFilter<>());
 
         return source;

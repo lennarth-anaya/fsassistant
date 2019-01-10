@@ -20,15 +20,26 @@ public class PipeConfig {
     @Autowired
     private VolumesConfig volumesConfigurations;
 
-    public VolumeConfig getSourceVolumeConfig() {
-        return lookupVolumeDetails(this.sourceVolumeMeta.getVolumeRef());
+    public void setSourceVolumeMeta(VolumeConfigTaskMeta sourceVolumeMeta) {
+        this.sourceVolumeMeta = sourceVolumeMeta;
+        attachVolumeDefToMetadata(sourceVolumeMeta);
     }
 
-    public VolumeConfig getTargetVolumeConfig() {
-        return lookupVolumeDetails(this.targetVolumeMeta.getVolumeRef());
+    public void setTargetVolumeMeta(VolumeConfigTaskMeta targetVolumeMeta) {
+        this.targetVolumeMeta = targetVolumeMeta;
+        attachVolumeDefToMetadata(targetVolumeMeta);
+    }
+
+    private void attachVolumeDefToMetadata(VolumeConfigTaskMeta volumeMeta) {
+        VolumeConfig volumeDef = lookupVolumeDetails(volumeMeta.getVolumeRef());
+        volumeMeta.setVolumeDef(volumeDef);
     }
 
     private VolumeConfig lookupVolumeDetails(String volumeConfigRef) {
+        if (this.volumesConfigurations == null) {
+            return null;
+        }
+
         return this.volumesConfigurations.getVolumes().get(volumeConfigRef);
     }
 }

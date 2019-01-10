@@ -5,6 +5,7 @@ import org.lrth.fsassistant.appcontext.boilerplatefactory.FileWritingMessageHand
 import org.lrth.fsassistant.configuration.PipeConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.*;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 
-@Component
+@Configuration
 @RequiredArgsConstructor
 public class LocalFileSink {
 
@@ -25,7 +26,7 @@ public class LocalFileSink {
     @Bean
     @ServiceActivator(inputChannel = "${fs-assistant.file-downloader.task.channel}")
     public MessageHandler writeFile() {
-        return factory.create(config);
+        return factory.create(config.getTargetVolumeMeta());
     }
 
     /** Alternative to inputChannel, this gateway allows other java classes

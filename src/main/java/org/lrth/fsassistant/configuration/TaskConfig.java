@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 @Setter
 public class TaskConfig {
     @NotNull private String cron;
-    @NotNull private String channel;
     private boolean forceSuspend;
     private boolean simulationMode;
     private boolean debugLoggerLevel;

@@ -53,8 +53,8 @@ public class LocalFolderPoller {
         value = "${fs-assistant.file-uploader.task.channel}",
         poller = @Poller(trigger = "filesUploaderTrigger")
     )
-    public MessageSource<File> fileReadingMessageSource() {
-        return factory.create(config);
+    public MessageSource<File> pollFiles() {
+        return factory.create(config.getSourceVolumeMeta());
     }
 
 }

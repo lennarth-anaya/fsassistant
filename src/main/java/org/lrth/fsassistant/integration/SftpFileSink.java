@@ -28,7 +28,7 @@ public class SftpFileSink {
     @Bean
     @ServiceActivator(inputChannel = "${fs-assistant.file-uploader.task.channel}")
     public MessageHandler handler() {
-        return factory.create(config);
+        return factory.create(config.getTargetVolumeMeta());
     }
 
     /** Alternative to inputChannel, this gateway allows other java classes

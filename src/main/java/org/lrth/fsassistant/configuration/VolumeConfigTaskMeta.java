@@ -17,4 +17,7 @@ public class VolumeConfigTaskMeta {
     private int maxExpectedFiles;
     private Boolean autoCreateDirectory;
     private Boolean deleteSourceFiles;
+
+    /** Virtual attribute populated by PipeConfig based on volumeRef above */
+    private VolumeConfig volumeDef;
 }

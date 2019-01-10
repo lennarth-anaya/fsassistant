@@ -49,11 +49,11 @@ fs-assistant:
       volume-ref: raspberryVideo
       file-extensions:
         - *.h264
-      delete-source-files: true
     target-volume:
       # must be a local folder (*file downloader*)
       volume-ref: localVideo
       auto-create-directory: true
+      delete-source-files: true
 
   # remote to remote
   file-transfer:
@@ -84,3 +84,22 @@ fs-assistant:
       file-extensions:
         - *.h264
         - *.avi
+
+  fs-assistant.move-from-sftp-to-local-pipe:
+    task:
+      # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+      cron: 0 0/15 * * * * *
+      force-suspend: false
+      simulation-mode: false
+      debug-logger-level: false
+      channel: downloadFilesChannel
+    source-volume:
+      # must be a remote folder (*file downloader*)
+      volume-ref: raspberryVideo
+      file-extensions:
+      - *.h264
+    target-volume:
+      # must be a local folder (*file downloader*)
+      volume-ref: localVideo
+      auto-create-directory: true
+      delete-source-files: true
