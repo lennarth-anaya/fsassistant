@@ -19,87 +19,88 @@ fs-assistant:
       type: local
       path: /home/dlink/ftp/files/
 
-  # remote to local
-  file-uploader:
-    task:
-      # we don't really need it so far, TODO: test it out
-      force-suspend: true
-      channel: uploadFilesChannel
-    source-volume:
-      volume-ref: localVideo
-      auto-create-directory: true
-      max-expected-files: 500
-    target-volume:
-      volume-ref: some-other-volume-here
-      file-extensions:
-      - *.*
-      delete-source-files: true
+  pipesConfig:
+    # remote to local
+    - file-uploader:
+      task:
+        # we don't really need it so far, TODO: test it out
+        force-suspend: true
+        channel: uploadFilesChannel
+      source-volume:
+        volume-ref: localVideo
+        auto-create-directory: true
+        max-expected-files: 500
+      target-volume:
+        volume-ref: some-other-volume-here
+        file-extensions:
+        - "*.*"
+        delete-source-files: true
 
-  # local to remote
-  file-downloader:
-    task:
-      # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-      cron: 0 0/15 * * * * *
-      force-suspend: false
-      simulation-mode: false
-      debug-logger-level: false
-      channel: downloadFilesChannel
-    source-volume:
-      # must be a remote folder (*file downloader*)
-      volume-ref: raspberryVideo
-      file-extensions:
-        - *.h264
-    target-volume:
-      # must be a local folder (*file downloader*)
-      volume-ref: localVideo
-      auto-create-directory: true
-      delete-source-files: true
+    # local to remote
+    - file-downloader:
+      task:
+        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+        cron: 0 0/15 * * * * *
+        force-suspend: false
+        simulation-mode: false
+        debug-logger-level: false
+        channel: downloadFilesChannel
+      source-volume:
+        # must be a remote folder (*file downloader*)
+        volume-ref: raspberryVideo
+        file-extensions:
+          - "*.h264"
+      target-volume:
+        # must be a local folder (*file downloader*)
+        volume-ref: localVideo
+        auto-create-directory: true
+        delete-source-files: true
 
-  # remote to remote
-  file-transfer:
-    task:
-      # we don't really need it so far, TODO: test it out
-      force-suspend: true
-      channel: uploadFilesChannel
-    source-volume:
-      volume-ref: some-remote-volume-here
-      auto-create-directory: true
-    target-volume:
-      volume-ref: some-other-remote-volume-here
-      file-extensions:
-      - *.*
-      delete-source-files: true
+    # remote to remote
+    - file-transfer:
+      task:
+        # we don't really need it so far, TODO: test it out
+        force-suspend: true
+        channel: uploadFilesChannel
+      source-volume:
+        volume-ref: some-remote-volume-here
+        auto-create-directory: true
+      target-volume:
+        volume-ref: some-other-remote-volume-here
+        file-extensions:
+        - "*.*"
+        delete-source-files: true
 
-  folder-cleaner:
-    task:
-      # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-      cron: 0 7 * * * * *
-      force-suspend: false
-      simulation-mode: false
-      debug-logger-level: false
-      channel: folderCleanupChannel
-    # source-volume doesn't make sense to cleaner task
-    target-volume:
-      volume-ref: folderCleanup
-      file-extensions:
-        - *.h264
-        - *.avi
+    - folder-cleaner:
+      task:
+        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+        cron: 0 7 * * * * *
+        force-suspend: false
+        simulation-mode: false
+        debug-logger-level: false
+        channel: folderCleanupChannel
+      # source-volume doesn't make sense to cleaner task
+      target-volume:
+        volume-ref: folderCleanup
+        file-extensions:
+          - "*.h264"
+          - "*.avi"
 
-  fs-assistant.move-from-sftp-to-local-pipe:
-    task:
-      # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-      cron: 0 0/15 * * * * *
-      force-suspend: false
-      simulation-mode: false
-      debug-logger-level: false
-      channel: downloadFilesChannel
-    source-volume:
-      # must be a remote folder (*file downloader*)
-      volume-ref: raspberryVideo
-      file-extensions:
-      - *.h264
-    target-volume:
-      # must be a local folder (*file downloader*)
-      volume-ref: localVideo
-      auto-create-directory: true
-      delete-source-files: true
+    - move-from-sftp-to-local-pipe:
+      task:
+        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+        cron: 0 0/15 * * * * *
+        force-suspend: false
+        simulation-mode: false
+        debug-logger-level: false
+        channel: downloadFilesChannel
+      source-volume:
+        # must be a remote folder (*file downloader*)
+        volume-ref: raspberryVideo
+        file-extensions:
+        - "*.h264"
+      target-volume:
+        # must be a local folder (*file downloader*)
+        volume-ref: localVideo
+        auto-create-directory: true
+        delete-source-files: true

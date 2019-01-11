@@ -8,16 +8,13 @@ import javax.validation.constraints.NotNull;
 
 @Getter @Setter
 public class PipeConfig {
-    @NotNull @Autowired
+    @NotNull
     private TaskConfig task;
 
-    @Autowired
     private VolumeConfigTaskMeta sourceVolumeMeta;
 
-    @Autowired
     private VolumeConfigTaskMeta targetVolumeMeta;
 
-    @Autowired
     private VolumesConfig volumesConfigurations;
 
     public void setSourceVolumeMeta(VolumeConfigTaskMeta sourceVolumeMeta) {

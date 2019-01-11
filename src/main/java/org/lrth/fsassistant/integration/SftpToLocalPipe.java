@@ -3,6 +3,7 @@ package org.lrth.fsassistant.integration;
 import lombok.RequiredArgsConstructor;
 import org.lrth.fsassistant.appcontext.boilerplatefactory.FileWritingMessageHandlerBoilerplateFactory;
 import org.lrth.fsassistant.appcontext.boilerplatefactory.SftpInboundFileSynchronizingMessageSourceBoilerplateFactory;
+import org.lrth.fsassistant.configuration.AppConfig;
 import org.lrth.fsassistant.configuration.PipeConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.integration.core.MessageSource;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -22,9 +24,11 @@ import java.io.File;
 @RequiredArgsConstructor
 public class SftpToLocalPipe {
 
-    @NotNull
-    private MyPipeConfig config;
+    final private AppConfig appConfig;
 
+    final private MyPipeConfig config;
+
+    @Component
     @ConfigurationProperties(prefix="fs-assistant.move-from-sftp-to-local-pipe")
     private static class MyPipeConfig extends PipeConfig {}
 
@@ -37,8 +41,12 @@ public class SftpToLocalPipe {
     private CronTrigger cachedCronTrigger;
 
     @Bean
-    public Trigger sftpPoller() {
+    public Trigger sftpPipePoller() {
         return (tctx) -> {
+            if (this.config == null || this.config.getTask() == null) {
+                return new java.util.Date(0);
+            }
+
             // this is the trick, exposing config via JMX or other mean would refresh the trigger
             final String curCronExp = this.config.getTask().getCron();
 
@@ -51,10 +59,9 @@ public class SftpToLocalPipe {
         };
     }
 
-    @Bean
     @InboundChannelAdapter(
             value = "${fs-assistant.move-from-sftp-to-local-pipe.task.channel}",
-            poller = @Poller(trigger = "sftpPoller")
+            poller = @Poller(trigger = "sftpPipePoller")
     )
     public MessageSource<File> pollFiles() {
         return msgSourceFactory.create(config.getSourceVolumeMeta());
@@ -64,9 +71,12 @@ public class SftpToLocalPipe {
 
     @NotNull private FileWritingMessageHandlerBoilerplateFactory factory;
 
-    @Bean
     @ServiceActivator(inputChannel = "${fs-assistant.move-from-sftp-to-local-pipe.task.channel}")
-    public MessageHandler writeFile() {
+    public MessageHandler localPipeWriter() {
+        if( config == null ) {
+            return null;
+        }
+
         return factory.create(config.getTargetVolumeMeta());
     }
 

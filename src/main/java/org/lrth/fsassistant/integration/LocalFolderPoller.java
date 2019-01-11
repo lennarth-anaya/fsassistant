@@ -19,42 +19,50 @@ import java.io.File;
 @RequiredArgsConstructor
 public class LocalFolderPoller {
 
-    @NotNull private FileReadingMessageSourceBoilerplateFactory factory;
-    @NotNull private MyPipeConfig config;
-
-    @ConfigurationProperties(prefix = "fs-assistant.file-uploader")
-    private static class MyPipeConfig extends PipeConfig {}
-
-    private String cachedCronExp;
-    private CronTrigger cachedCronTrigger;
-
-    @Bean
-    public Trigger filesUploaderTrigger() {
-        return (tctx) -> {
-            // this is the trick for live-editable cron expression:
-            //    exposing config via JMX or other mean would refresh the trigger
-            final String curCronExp = this.config.getTask().getCron();
-
-            if (!curCronExp.equals(this.cachedCronExp)) {
-                this.cachedCronExp = curCronExp;
-                this.cachedCronTrigger = new CronTrigger(curCronExp);
-            }
-
-            return this.cachedCronTrigger.nextExecutionTime(tctx);
-        };
-    }
-
-    /**
-     * We could have used UploadGateway, but using Spring Integration Channels instead.
-     * @return
-     */
-    @Bean
-    @InboundChannelAdapter(
-        value = "${fs-assistant.file-uploader.task.channel}",
-        poller = @Poller(trigger = "filesUploaderTrigger")
-    )
-    public MessageSource<File> pollFiles() {
-        return factory.create(config.getSourceVolumeMeta());
-    }
+//    @NotNull private FileReadingMessageSourceBoilerplateFactory factory;
+//    @NotNull private MyPipeConfig config;
+//
+//    @Component
+//    @ConfigurationProperties(prefix = "fs-assistant.file-uploader")
+//    private static class MyPipeConfig extends PipeConfig {}
+//
+//    private String cachedCronExp;
+//    private CronTrigger cachedCronTrigger;
+//
+//    @Bean
+//    public Trigger filesUploaderTrigger() {
+//        return (tctx) -> {
+//            if (this.config == null) {
+//                return new java.util.Date(0);
+//            }
+//
+//            // this is the trick for live-editable cron expression:
+//            //    exposing config via JMX or other mean would refresh the trigger
+//            final String curCronExp = this.config.getTask().getCron();
+//
+//            if (!curCronExp.equals(this.cachedCronExp)) {
+//                this.cachedCronExp = curCronExp;
+//                this.cachedCronTrigger = new CronTrigger(curCronExp);
+//            }
+//
+//            return this.cachedCronTrigger.nextExecutionTime(tctx);
+//        };
+//    }
+//
+//    /**
+//     * We could have used UploadGateway, but using Spring Integration Channels instead.
+//     * @return
+//     */
+//    @InboundChannelAdapter(
+//        value = "${fs-assistant.file-uploader.task.channel}",
+//        poller = @Poller(trigger = "filesUploaderTrigger")
+//    )
+//    public MessageSource<File> localFolderPoller() {
+//        if( config == null ) {
+//            return null;
+//        }
+//
+//        return factory.create(config.getSourceVolumeMeta());
+//    }
 
 }

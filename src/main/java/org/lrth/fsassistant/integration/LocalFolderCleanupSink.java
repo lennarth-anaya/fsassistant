@@ -10,9 +10,8 @@ import java.io.File;
 @Configuration
 public class LocalFolderCleanupSink {
 
-    @Bean
     @ServiceActivator(inputChannel = "${fs-assistant.file-downloader.task.channel}")
-    public MessageHandler handler() {
+    public MessageHandler folderCleaner() {
         return message -> {
             File file = (File) message.getPayload();
             file.delete();
