@@ -1,15 +1,16 @@
 package org.lrth.fsassistant.integration;
 
 import org.lrth.fsassistant.appcontext.boilerplatefactory.FileReadingMessageSourceBoilerplateFactory;
+import org.lrth.fsassistant.configuration.AppConfig;
 import org.lrth.fsassistant.configuration.PipeConfig;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.InboundChannelAdapter;
-import org.springframework.stereotype.Component;
 
 import org.springframework.integration.annotation.Poller;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -17,19 +18,26 @@ import org.springframework.messaging.MessageHandler;
 
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 
 @Configuration
 @RequiredArgsConstructor
 public class LocalCleanupPipe {
-    final private SpecificPipeConfig config;
-    final private FileReadingMessageSourceBoilerplateFactory factory;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalCleanupPipe.class);
+
+    private final AppConfig appConfig;
+    private final FileReadingMessageSourceBoilerplateFactory factory;
     
     private static final String PIPE_ID = "local-cleanup-pipe";
-    
-    @Component
-    @ConfigurationProperties(prefix="fs-assistant." + PIPE_ID)
-    private static class SpecificPipeConfig extends PipeConfig {}
+
+    private PipeConfig config;
+
+    @PostConstruct
+    public void init() {
+        this.config = appConfig.getPipes().get(PIPE_ID);
+    }
 
     /* ****** PIPE SOURCE ******* */
     
@@ -39,10 +47,6 @@ public class LocalCleanupPipe {
     @Bean
     public Trigger localFolderCleanupTrigger() {
         return (tctx) -> {
-            if (this.config == null) {
-                return new java.util.Date(0);
-            }
-    
             // this is the trick for live-editable cron expression:
             //    exposing config via JMX or other mean would refresh the trigger
             final String curCronExp = this.config.getTask().getCron();
@@ -55,26 +59,43 @@ public class LocalCleanupPipe {
             return this.cachedCronTrigger.nextExecutionTime(tctx);
         };
     }
-    
+
+    @Bean
     @InboundChannelAdapter(
-      value = "${fs-assistant." + PIPE_ID + ".task.channel}",
-      poller = @Poller(trigger = "localFolderCleanupTrigger")
+        channel = "fileToRemove",
+        poller = @Poller(trigger = "localFolderCleanupTrigger")
     )
-    public MessageSource<File> localFolderPoller() {
-      if( config == null ) {
-          return null;
-      }
-    
-      return factory.create(config.getSourceVolumeMeta());
+    public MessageSource<File> localFolderPollerForCleanup() {
+      return factory.create(config.getSourceVolumeMeta(), PIPE_ID + ".source-volume-meta");
     }
 
     /* ****** PIPE SINK ******* */
-    @ServiceActivator(inputChannel = "${fs-assistant." + PIPE_ID + ".task.channel}")
+    @Bean
+    @ServiceActivator(
+        inputChannel = "fileToRemove"
+    )
     public MessageHandler folderCleaner() {
         return message -> {
             File file = (File) message.getPayload();
-            file.delete();
+
+            if (file.isDirectory() && file.list().length == 0) {
+                // cleaning up empty folders too, no config parameter that would complicate VolumeConfigTaskMeta structure
+                deleteFile(file);
+            }
+
+            if (file.isFile()) {
+                deleteFile(file);
+            }
         };
     }
 
+    public void deleteFile(File file) {
+        if ( config.getTask().isSimulationMode() ) {
+            System.out.println("SIMULATION MODE: I would have deleted file :" + file);
+            LOGGER.info("SIMULATION MODE: I would have deleted file :" + file);
+        } else {
+            System.out.println("DELETING: I would have deleted file :" + file);
+            file.delete();
+        }
+    }
 }

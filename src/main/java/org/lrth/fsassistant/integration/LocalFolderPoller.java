@@ -15,7 +15,7 @@ import org.springframework.scheduling.support.CronTrigger;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 
-@Configuration
+// @Configuration
 @RequiredArgsConstructor
 public class LocalFolderPoller {
 

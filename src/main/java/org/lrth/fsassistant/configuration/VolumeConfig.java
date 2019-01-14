@@ -17,7 +17,7 @@ public class VolumeConfig {
 
     /** useful for type=SFTP */
     private String host;
-    @Min(1025) @Max(65536)
+    // @Min(1025) @Max(65536)
     private int port;
     private String user;
 
