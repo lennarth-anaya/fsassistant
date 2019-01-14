@@ -2,13 +2,9 @@ package org.lrth.fsassistant.configuration;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.validation.constraints.NotNull;
 
 @Getter @Setter
 public class PipeConfig {
-    @NotNull
     private TaskConfig task;
 
     private VolumeConfigTaskMeta sourceVolumeMeta;
