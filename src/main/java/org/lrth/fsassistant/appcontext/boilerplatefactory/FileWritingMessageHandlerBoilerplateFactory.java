@@ -19,8 +19,8 @@ public class FileWritingMessageHandlerBoilerplateFactory {
         fileWriterHandler = new FileWritingMessageHandler(directoryExpression);
 
         fileWriterHandler.setFileExistsMode(FileExistsMode.IGNORE);
-        fileWriterHandler.setDeleteSourceFiles(volumeConfigTaskMeta.getDeleteSourceFiles());
-        fileWriterHandler.setAutoCreateDirectory(volumeConfigTaskMeta.getAutoCreateDirectory());
+        fileWriterHandler.setDeleteSourceFiles(volumeConfigTaskMeta.isDeleteSourceFiles());
+        fileWriterHandler.setAutoCreateDirectory(volumeConfigTaskMeta.isAutoCreateDirectory());
 
         return fileWriterHandler;
     }

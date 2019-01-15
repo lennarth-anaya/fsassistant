@@ -63,10 +63,19 @@ public class LocalCleanupPipe {
     @Bean
     @InboundChannelAdapter(
         channel = "fileToRemove",
-        poller = @Poller(trigger = "localFolderCleanupTrigger")
+        poller = @Poller(
+            trigger = "localFolderCleanupTrigger",
+            maxMessagesPerPoll = "${fs-assistant.pipes.local-cleanup-pipe.task.max-messages-per-poll}"
+        )
     )
     public MessageSource<File> localFolderPollerForCleanup() {
-      return factory.create(config.getSourceVolumeMeta(), PIPE_ID + ".source-volume-meta");
+        // we want to pick folders again once they're empty
+        final boolean pickFilesOnlyOnce = false;
+
+        // TODO there should be a smarter way of debugging configId
+        final String configId = PIPE_ID + ".source-volume-meta";
+
+        return factory.create(config.getSourceVolumeMeta(), pickFilesOnlyOnce, configId);
     }
 
     /* ****** PIPE SINK ******* */
@@ -91,10 +100,9 @@ public class LocalCleanupPipe {
 
     public void deleteFile(File file) {
         if ( config.getTask().isSimulationMode() ) {
-            System.out.println("SIMULATION MODE: I would have deleted file :" + file);
-            LOGGER.info("SIMULATION MODE: I would have deleted file :" + file);
+            LOGGER.info("SIMULATION MODE: I would have deleted file: [{}]", file);
         } else {
-            System.out.println("DELETING: I would have deleted file :" + file);
+            LOGGER.info("DELETING: [{}]", file);
             file.delete();
         }
     }

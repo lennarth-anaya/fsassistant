@@ -25,12 +25,8 @@ public class AppConfig {
 
     private void attachVolumes() {
         if (pipes != null && volumes != null) {
-            VolumesConfig volumesConfig = new VolumesConfig();
-            volumesConfig.setVolumes(volumes);
-
             pipes.entrySet().forEach(e -> {
                 PipeConfig pipeConfig = e.getValue();
-                String pipeId = e.getKey();
                 VolumeConfigTaskMeta meta;
 
                 meta = pipeConfig.getSourceVolumeMeta();

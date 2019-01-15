@@ -1,6 +1,6 @@
 package org.lrth.fsassistant.appcontext.boilerplatefactory;
 
-import org.lrth.fsassistant.util.SimpleButUsefulComposedFileListFilter;
+import org.lrth.fsassistant.util.SimplePatternFilesListFilter;
 import org.slf4j.Logger;
 import org.lrth.fsassistant.configuration.VolumeConfig;
 import org.lrth.fsassistant.configuration.VolumeConfigTaskMeta;
@@ -12,31 +12,29 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class FileReadingMessageSourceBoilerplateFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileReadingMessageSourceBoilerplateFactory.class);
 
-    /** @param configId is used only for logging purposes */
-    public FileReadingMessageSource create(VolumeConfigTaskMeta taskConfig, String configId) {
+    /** @param configId is used only for debugging purposes. If there's any failure and there are several components,
+     *                   this id would help find out which is the one missing any setting.
+     */
+    public FileReadingMessageSource create(VolumeConfigTaskMeta taskConfig, boolean pickFilesOnlyOnce, String configId) {
         FileReadingMessageSource source;
 
         validate(taskConfig, configId);
 
-        //ChainFileListFilter<File> filters = new ChainFileListFilter<>();
-        //CompositeFileListFilter<File> filters = new ChainFileListFilter<>();
-        SimpleButUsefulComposedFileListFilter filters = new SimpleButUsefulComposedFileListFilter();
-
         VolumeConfig volumeConfig = taskConfig.getVolumeDef();
 
-        filters.addFilter(new AcceptOnceFileListFilter<>(
-                taskConfig.getMaxExpectedFiles()));
+        ChainFileListFilter<File> filters = new ChainFileListFilter<>();
 
-        // add all file extensions from configuration
-        taskConfig.getFileExtensions().forEach(ext ->
-            filters.addFilter(new SimplePatternFileListFilter(ext)));
+        if (pickFilesOnlyOnce) {
+            filters.addFilter(new AcceptOnceFileListFilter<>(taskConfig.getMaxExpectedFiles()));
+        }
+
+        filters.addFilter(new SimplePatternFilesListFilter(taskConfig.getFileExtensions(), taskConfig.isFilterOutFolders()));
 
         source = new FileReadingMessageSource();
 
@@ -60,7 +58,7 @@ public class FileReadingMessageSourceBoilerplateFactory {
         }
 
         if ( taskConfig.getFileExtensions() == null ) {
-            LOGGER.warn(configId + ": files-extensions was undefined, hence all files will be processed");
+            LOGGER.warn("{}: files-extensions was undefined, hence all files will be processed", configId);
             taskConfig.setFileExtensions(new ArrayList<>());
         }
 

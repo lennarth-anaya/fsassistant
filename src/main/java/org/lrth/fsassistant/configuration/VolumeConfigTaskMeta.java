@@ -15,8 +15,9 @@ public class VolumeConfigTaskMeta {
     @NotNull private String volumeRef;
     @NotNull private List<String> fileExtensions;
     private int maxExpectedFiles;
-    private Boolean autoCreateDirectory;
-    private Boolean deleteSourceFiles;
+    private boolean autoCreateDirectory;
+    private boolean deleteSourceFiles;
+    private boolean filterOutFolders;
 
     /** Virtual attribute populated by PipeConfig based on volumeRef above */
     private VolumeConfig volumeDef;

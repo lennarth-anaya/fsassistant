@@ -2,105 +2,27 @@
 fs-assistant:
 
   volumes:
-    raspberryVideo:
-      type: sftp
-      path: /media/pi/video
-      host:
-      port: 22
-      user:
-      private-key:
-      private-key-passphrase:
-      # password is optional if no private-key & passphrase were used
-      password:
     localVideo:
       type: local
-      path: /home/dlink/ftp/files/raspberry
+      path: /somePath
     folderCleanup:
       type: local
-      path: /home/dlink/ftp/files/
+      path: C:\Users\me\Documents\test\cleanup
 
-  pipesConfig:
-    # remote to local
-    - file-uploader:
-      task:
-        # we don't really need it so far, TODO: test it out
-        force-suspend: true
-        channel: uploadFilesChannel
-      source-volume:
-        volume-ref: localVideo
-        auto-create-directory: true
-        max-expected-files: 500
-      target-volume:
-        volume-ref: some-other-volume-here
-        file-extensions:
-        - "*.*"
-        delete-source-files: true
-
-    # local to remote
-    - file-downloader:
+  pipes:
+    local-cleanup-pipe:
       task:
         # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-        cron: 0 0/15 * * * * *
+        cron: 0/30 * * * * *
         force-suspend: false
         simulation-mode: false
-        debug-logger-level: false
-        channel: downloadFilesChannel
-      source-volume:
-        # must be a remote folder (*file downloader*)
-        volume-ref: raspberryVideo
-        file-extensions:
-          - "*.h264"
-      target-volume:
-        # must be a local folder (*file downloader*)
-        volume-ref: localVideo
-        auto-create-directory: true
-        delete-source-files: true
-
-    # remote to remote
-    - file-transfer:
-      task:
-        # we don't really need it so far, TODO: test it out
-        force-suspend: true
-        channel: uploadFilesChannel
-      source-volume:
-        volume-ref: some-remote-volume-here
-        auto-create-directory: true
-      target-volume:
-        volume-ref: some-other-remote-volume-here
-        file-extensions:
-        - "*.*"
-        delete-source-files: true
-
-    - folder-cleaner:
-      task:
-        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-        cron: 0 7 * * * * *
-        force-suspend: false
-        simulation-mode: false
-        debug-logger-level: false
-        channel: folderCleanupChannel
-      # source-volume doesn't make sense to cleaner task
-      target-volume:
+        max-messages-per-poll: 30
+      # target-volume is not necessary to cleaner task
+      source-volume-meta:
         volume-ref: folderCleanup
-        file-extensions:
-          - "*.h264"
-          - "*.avi"
-
-    - move-from-sftp-to-local-pipe:
-      task:
-        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-        cron: 0 0/15 * * * * *
-        force-suspend: false
-        simulation-mode: false
-        debug-logger-level: false
-        channel: downloadFilesChannel
-      source-volume:
-        # must be a remote folder (*file downloader*)
-        volume-ref: raspberryVideo
+        max-expected-files: 500
+        # subfolders are always processed recursively, nex param states if folder itself will be handled
+        filter-out-folders: false
         file-extensions:
         - "*.h264"
-      target-volume:
-        # must be a local folder (*file downloader*)
-        volume-ref: localVideo
-        auto-create-directory: true
-        delete-source-files: true
+        - "*.avi"

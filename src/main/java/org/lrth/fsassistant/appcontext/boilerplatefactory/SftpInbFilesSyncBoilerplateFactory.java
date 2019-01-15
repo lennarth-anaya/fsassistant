@@ -18,7 +18,7 @@ public class SftpInbFilesSyncBoilerplateFactory {
     {
         SftpInboundFileSynchronizer fileSynchronizer = new SftpInboundFileSynchronizer(sessionFactory);
 
-        Boolean deleteSourceFiles = volumeTaskMeta.getDeleteSourceFiles();
+        Boolean deleteSourceFiles = volumeTaskMeta.isDeleteSourceFiles();
         if (deleteSourceFiles == null) {
             fileSynchronizer.setDeleteRemoteFiles(false);
         } else {

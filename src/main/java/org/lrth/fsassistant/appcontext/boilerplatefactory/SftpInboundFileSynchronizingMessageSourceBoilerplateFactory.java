@@ -1,7 +1,6 @@
 package org.lrth.fsassistant.appcontext.boilerplatefactory;
 
 import com.jcraft.jsch.ChannelSftp;
-import org.lrth.fsassistant.configuration.PipeConfig;
 import org.lrth.fsassistant.configuration.VolumeConfig;
 import org.lrth.fsassistant.configuration.VolumeConfigTaskMeta;
 import org.springframework.integration.core.MessageSource;
@@ -37,7 +36,7 @@ public class SftpInboundFileSynchronizingMessageSourceBoilerplateFactory {
         source = new SftpInboundFileSynchronizingMessageSource(sftpFileSynchronizer);
 
         source.setLocalDirectory(new File(volumeConfig.getPath()));
-        source.setAutoCreateLocalDirectory(volumeTaskMeta.getAutoCreateDirectory());
+        source.setAutoCreateLocalDirectory(volumeTaskMeta.isAutoCreateDirectory());
         source.setLocalFilter(new AcceptOnceFileListFilter<>());
 
         return source;
