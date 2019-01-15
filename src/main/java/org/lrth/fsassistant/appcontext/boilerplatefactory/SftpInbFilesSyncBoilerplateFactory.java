@@ -26,7 +26,7 @@ public class SftpInbFilesSyncBoilerplateFactory {
         }
 
         fileSynchronizer.setRemoteDirectory(sourceVolumeConfig.getPath());
-        volumeTaskMeta.getFileExtensions().forEach(ext ->
+        volumeTaskMeta.getFilter().getFileExtensions().forEach(ext ->
                 fileSynchronizer.setFilter(new SftpSimplePatternFileListFilter(ext)));
 
         return fileSynchronizer;

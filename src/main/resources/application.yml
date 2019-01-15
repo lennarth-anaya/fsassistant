@@ -20,9 +20,13 @@ fs-assistant:
       # target-volume is not necessary to cleaner task
       source-volume-meta:
         volume-ref: folderCleanup
-        max-expected-files: 500
-        # subfolders are always processed recursively, nex param states if folder itself will be handled
-        filter-out-folders: false
-        file-extensions:
-        - "*.h264"
-        - "*.avi"
+        # next does not filter, but just keeps a max size of files to recall before potentially grab the same files again
+        max-expected-files: 1000
+        filter:
+          # 172800 seconds = 2 days
+          file-modification-min-age-seconds: 172800
+          # subfolders are always processed recursively, nex param states if folder itself will be handled
+          filter-out-folders: false
+          file-extensions:
+          - "*.h264"
+          - "*.avi"

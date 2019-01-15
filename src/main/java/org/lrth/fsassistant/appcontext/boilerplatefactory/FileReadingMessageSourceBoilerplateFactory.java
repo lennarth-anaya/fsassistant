@@ -1,5 +1,6 @@
 package org.lrth.fsassistant.appcontext.boilerplatefactory;
 
+import org.lrth.fsassistant.configuration.VolumeConfigTaskMetaFileFilters;
 import org.lrth.fsassistant.util.SimplePatternFilesListFilter;
 import org.slf4j.Logger;
 import org.lrth.fsassistant.configuration.VolumeConfig;
@@ -24,6 +25,8 @@ public class FileReadingMessageSourceBoilerplateFactory {
     public FileReadingMessageSource create(VolumeConfigTaskMeta taskConfig, boolean pickFilesOnlyOnce, String configId) {
         FileReadingMessageSource source;
 
+        VolumeConfigTaskMetaFileFilters fileFiltersConfig = taskConfig.getFilter();
+
         validate(taskConfig, configId);
 
         VolumeConfig volumeConfig = taskConfig.getVolumeDef();
@@ -34,7 +37,12 @@ public class FileReadingMessageSourceBoilerplateFactory {
             filters.addFilter(new AcceptOnceFileListFilter<>(taskConfig.getMaxExpectedFiles()));
         }
 
-        filters.addFilter(new SimplePatternFilesListFilter(taskConfig.getFileExtensions(), taskConfig.isFilterOutFolders()));
+        if (fileFiltersConfig.getFileModificationMinAgeSeconds() > 0) {
+            filters.addFilter(new LastModifiedFileListFilter(fileFiltersConfig.getFileModificationMinAgeSeconds()));
+        }
+
+        filters.addFilter(new SimplePatternFilesListFilter(
+            fileFiltersConfig.getFileExtensions(), fileFiltersConfig.isFilterOutFolders()));
 
         source = new FileReadingMessageSource();
 
@@ -57,9 +65,9 @@ public class FileReadingMessageSourceBoilerplateFactory {
                     .append(".volume-ref\n");
         }
 
-        if ( taskConfig.getFileExtensions() == null ) {
-            LOGGER.warn("{}: files-extensions was undefined, hence all files will be processed", configId);
-            taskConfig.setFileExtensions(new ArrayList<>());
+        if (taskConfig.getFilter() == null || taskConfig.getFilter().getFileExtensions() == null) {
+            LOGGER.warn("{}: filter.files-extensions was undefined, hence all files will be processed", configId);
+            taskConfig.getFilter().setFileExtensions(new ArrayList<>());
         }
 
         if (taskConfig.getMaxExpectedFiles() < 1) {

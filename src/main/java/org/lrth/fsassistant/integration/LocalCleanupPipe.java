@@ -72,8 +72,8 @@ public class LocalCleanupPipe {
         // we want to pick folders again once they're empty
         final boolean pickFilesOnlyOnce = false;
 
-        // TODO there should be a smarter way of debugging configId
-        final String configId = PIPE_ID + ".source-volume-meta";
+        // TODO there should be a smart way of debugging configId
+        final String configId = PIPE_ID + ".sourceVolumeMeta";
 
         return factory.create(config.getSourceVolumeMeta(), pickFilesOnlyOnce, configId);
     }

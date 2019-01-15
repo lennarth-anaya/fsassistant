@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * VolumeConfig are reusable configurations that can
@@ -13,11 +12,11 @@ import java.util.List;
 @Getter @Setter
 public class VolumeConfigTaskMeta {
     @NotNull private String volumeRef;
-    @NotNull private List<String> fileExtensions;
     private int maxExpectedFiles;
     private boolean autoCreateDirectory;
     private boolean deleteSourceFiles;
-    private boolean filterOutFolders;
+
+    private VolumeConfigTaskMetaFileFilters filter;
 
     /** Virtual attribute populated by PipeConfig based on volumeRef above */
     private VolumeConfig volumeDef;
