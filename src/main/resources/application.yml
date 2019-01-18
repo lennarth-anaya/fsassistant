@@ -1,4 +1,9 @@
 
+spring:
+  application:
+    admin:
+      enabled: true
+
 fs-assistant:
 
   volumes:
@@ -7,7 +12,7 @@ fs-assistant:
       path: /somePath
     folderCleanup:
       type: local
-      path: C:\Users\me\Documents\test\cleanup
+      path: C:\Users\LennarthAnaya\Documents\zdata\tmp\test\cleanup
 
   pipes:
     local-cleanup-pipe:
