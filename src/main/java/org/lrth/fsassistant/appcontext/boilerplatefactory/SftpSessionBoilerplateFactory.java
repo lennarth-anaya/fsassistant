@@ -15,6 +15,10 @@ public class SftpSessionBoilerplateFactory {
     public SessionFactory<ChannelSftp.LsEntry> create(VolumeConfig volumeConfig) {
         DefaultSftpSessionFactory sessFactory = new DefaultSftpSessionFactory();
 
+        sessFactory.setAllowUnknownKeys(true);
+        // you can use next instead of allowingUnkownKeys, safer
+        // sessFactory.setKnownHosts("known_hosts file name");
+
         sessFactory.setHost(volumeConfig.getHost());
         sessFactory.setPort(volumeConfig.getPort());
         sessFactory.setUser(volumeConfig.getUser());
@@ -27,7 +31,7 @@ public class SftpSessionBoilerplateFactory {
         });
 
         // TODO with Java 9+ a neater ifPresentOrElse is available
-        if (privateKeyResource.isPresent()) {
+        if (!privateKeyResource.isPresent()) {
             sessFactory.setPassword(volumeConfig.getPassword());
         }
 

@@ -69,6 +69,11 @@ public class LocalCleanupPipe {
         )
     )
     public MessageSource<File> localFolderPollerForCleanup() {
+
+        if (config.getTask().isForceSuspend()) {
+            return null;
+        }
+
         // we want to pick folders again once they're empty
         final boolean pickFilesOnlyOnce = false;
 
@@ -85,6 +90,10 @@ public class LocalCleanupPipe {
     )
     public MessageHandler folderCleaner() {
         return message -> {
+            if (config.getTask().isForceSuspend()) {
+                return;
+            }
+
             File file = (File) message.getPayload();
 
             if (file.isDirectory() && file.list().length == 0) {
