@@ -54,7 +54,7 @@ fs-assistant:
       task:
         # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
         cron: 0/30 * * * * *
-        force-suspend: false
+        force-suspend: true
         simulation-mode: false
         max-messages-per-poll: 30
       source-volume-meta:
@@ -77,3 +77,24 @@ fs-assistant:
         # must be a local folder (*file downloader*)
         volume-ref: remoteSftp2
         auto-create-directory: true
+
+    move-from-local-to-sftp-pipe:
+      task:
+        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+        cron: 0/30 * * * * *
+        force-suspend: false
+        simulation-mode: false
+        max-messages-per-poll: 30
+      source-volume-meta:
+        volume-ref: folderCleanup
+        delete-source-files: true
+        # next does not filter, but just keeps a max size of files to recall before potentially grab the same files again
+        max-expected-files: 1000
+        filter:
+          # 172800 seconds = 2 days
+          file-modification-min-age-seconds: 60
+          # subfolders are always processed recursively, nex param states if folder itself will be handled
+          filter-out-folders: false
+          file-extensions:
+          - "*.h264"
+          - "*.avi"

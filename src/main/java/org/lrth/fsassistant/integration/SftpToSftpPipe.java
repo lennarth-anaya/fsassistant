@@ -1,19 +1,13 @@
 package org.lrth.fsassistant.integration;
 
 import lombok.RequiredArgsConstructor;
-import org.lrth.fsassistant.appcontext.boilerplatefactory.SftpInboundFileSynchronizingMessageSourceBoilerplateFactory;
 import org.lrth.fsassistant.appcontext.boilerplatefactory.SftpMessageHandlerBoilerplateFactory;
 import org.lrth.fsassistant.configuration.AppConfig;
 import org.lrth.fsassistant.configuration.PipeConfig;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.*;
-import org.springframework.integration.core.MessageSource;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.scheduling.Trigger;
-import org.springframework.scheduling.support.CronTrigger;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
