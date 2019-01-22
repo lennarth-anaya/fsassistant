@@ -1,6 +1,7 @@
 package org.lrth.fsassistant.appcontext.boilerplatefactory;
 
 import com.jcraft.jsch.ChannelSftp.LsEntry;
+import lombok.RequiredArgsConstructor;
 import org.lrth.fsassistant.configuration.VolumeConfig;
 import org.lrth.fsassistant.configuration.VolumeConfigTaskMeta;
 import org.springframework.expression.common.LiteralExpression;
@@ -11,11 +12,11 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 
+@RequiredArgsConstructor
 @Component
 public class SftpMessageHandlerBoilerplateFactory {
 
-    @NotNull
-    private SftpSessionBoilerplateFactory sftpSessionBoilerplateFactory;
+    private final SftpSessionBoilerplateFactory sftpSessionBoilerplateFactory;
 
     public SftpMessageHandler create(VolumeConfigTaskMeta config) {
         SftpMessageHandler handler;
@@ -27,6 +28,7 @@ public class SftpMessageHandlerBoilerplateFactory {
 
         handler = new SftpMessageHandler(sessionFactory);
         handler.setRemoteDirectoryExpression(new LiteralExpression(sftpRemoteDirectory));
+        handler.setAutoCreateDirectory(config.isAutoCreateDirectory());
         handler.setFileNameGenerator(message -> {
             if (message.getPayload() instanceof File) {
                 return ((File) message.getPayload()).getName();

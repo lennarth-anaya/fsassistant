@@ -18,6 +18,16 @@ fs-assistant:
       private-key-passphrase: password
       # password is optional if no private-key & passphrase were used
       # password:
+    remoteSftp2:
+      type: sftp
+      path: ./test2
+      host: localhost
+      port: 22
+      user: lanaya
+      private-key: C:\Users\me\.ssh\id_sftptest_rsa
+      private-key-passphrase: password
+      # password is optional if no private-key & passphrase were used
+      # password:
 
   pipes:
     local-cleanup-pipe:
@@ -60,4 +70,10 @@ fs-assistant:
       target-volume-meta:
         # must be a local folder (*file downloader*)
         volume-ref: folderCleanup
+        auto-create-directory: true
+
+    move-from-sftp-to-sftp-pipe:
+      target-volume-meta:
+        # must be a local folder (*file downloader*)
+        volume-ref: remoteSftp2
         auto-create-directory: true

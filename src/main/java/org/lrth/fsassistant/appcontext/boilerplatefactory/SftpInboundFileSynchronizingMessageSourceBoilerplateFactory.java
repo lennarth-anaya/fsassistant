@@ -41,6 +41,7 @@ public class SftpInboundFileSynchronizingMessageSourceBoilerplateFactory {
 
         source = new SftpInboundFileSynchronizingMessageSource(sftpFileSynchronizer);
 
+        // local directory is used as a temporary buffer but it must be cleaned up (perhaps with cleanup pipe provided with this project)
         source.setLocalDirectory(new File(targetTaskMeta.getVolumeDef().getPath()));
         source.setAutoCreateLocalDirectory(targetTaskMeta.isAutoCreateDirectory());
         source.setLocalFilter(new AcceptOnceFileListFilter<>());

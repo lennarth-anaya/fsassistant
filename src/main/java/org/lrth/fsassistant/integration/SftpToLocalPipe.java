@@ -61,7 +61,8 @@ public class SftpToLocalPipe {
 
     @Bean
     @InboundChannelAdapter(
-            value = "localStore",
+            value = "remoteStore",
+            // value = "localStore",
             poller = @Poller(trigger = "sftpPipePoller")
     )
     public MessageSource<File> pollFiles() {
@@ -78,7 +79,7 @@ public class SftpToLocalPipe {
     private final FileWritingMessageHandlerBoilerplateFactory factory;
 
     @Bean
-    @ServiceActivator(inputChannel = "localStore")
+//    @ServiceActivator(inputChannel = "localStore")
     public MessageHandler localPipeWriter() {
         if (config.getTask().isForceSuspend()) {
             return null;
