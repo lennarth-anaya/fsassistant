@@ -1,0 +1,100 @@
+
+fs-assistant:
+
+  volumes:
+    localVideo:
+      type: local
+      path: /somePath
+    folderCleanup:
+      type: local
+      path: C:\Users\me\Documents\test\cleanup
+    remoteSftp:
+      type: sftp
+      path: ./test
+      host: localhost
+      port: 22
+      user: lanaya
+      private-key: C:\Users\me\.ssh\id_sftptest_rsa
+      private-key-passphrase: password
+      # password is optional if no private-key & passphrase were used
+      # password:
+    remoteSftp2:
+      type: sftp
+      path: ./test2
+      host: localhost
+      port: 22
+      user: lanaya
+      private-key: C:\Users\me\.ssh\id_sftptest_rsa
+      private-key-passphrase: password
+      # password is optional if no private-key & passphrase were used
+      # password:
+
+  pipes:
+    local-cleanup-pipe:
+      task:
+        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+        cron: 0/30 * * * * *
+        force-suspend: true
+        simulation-mode: false
+        max-messages-per-poll: 30
+      # target-volume is not necessary to cleaner task
+      source-volume-meta:
+        volume-ref: folderCleanup
+        # next does not filter, but just keeps a max size of files to recall before potentially grab the same files again
+        max-expected-files: 1000
+        filter:
+          # 172800 seconds = 2 days
+          file-modification-min-age-seconds: 172800
+          # subfolders are always processed recursively, nex param states if folder itself will be handled
+          filter-out-folders: false
+          file-extensions:
+          - "*.h264"
+          - "*.avi"
+    move-from-sftp-to-local-pipe:
+      task:
+        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+        cron: 0/30 * * * * *
+        force-suspend: true
+        simulation-mode: false
+        max-messages-per-poll: 30
+      source-volume-meta:
+        volume-ref: remoteSftp
+        delete-source-files: true
+        filter:
+          # 172800 seconds = 2 days
+          # file-modification-min-age-seconds: 172800
+          file-modification-min-age-seconds: 120
+          file-extensions:
+          - "*.h264"
+          - "*.avi"
+      target-volume-meta:
+        # must be a local folder (*file downloader*)
+        volume-ref: folderCleanup
+        auto-create-directory: true
+
+    move-from-sftp-to-sftp-pipe:
+      target-volume-meta:
+        # must be a local folder (*file downloader*)
+        volume-ref: remoteSftp2
+        auto-create-directory: true
+
+    move-from-local-to-sftp-pipe:
+      task:
+        # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+        cron: 0/30 * * * * *
+        force-suspend: false
+        simulation-mode: false
+        max-messages-per-poll: 30
+      source-volume-meta:
+        volume-ref: folderCleanup
+        delete-source-files: true
+        # next does not filter, but just keeps a max size of files to recall before potentially grab the same files again
+        max-expected-files: 1000
+        filter:
+          # 172800 seconds = 2 days
+          file-modification-min-age-seconds: 60
+          # subfolders are always processed recursively, nex param states if folder itself will be handled
+          filter-out-folders: false
+          file-extensions:
+          - "*.h264"
+          - "*.avi"
