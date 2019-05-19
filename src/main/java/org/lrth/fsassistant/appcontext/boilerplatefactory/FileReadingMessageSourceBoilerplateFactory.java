@@ -1,18 +1,22 @@
 package org.lrth.fsassistant.appcontext.boilerplatefactory;
 
-import org.lrth.fsassistant.configuration.VolumeConfigTaskMetaFileFilters;
-import org.lrth.fsassistant.util.SimplePatternFilesListFilter;
-import org.slf4j.Logger;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.lrth.fsassistant.configuration.VolumeConfig;
 import org.lrth.fsassistant.configuration.VolumeConfigTaskMeta;
+import org.lrth.fsassistant.configuration.VolumeConfigTaskMetaFileFilters;
+import org.lrth.fsassistant.util.SimpleFileAppenderFilter;
+import org.lrth.fsassistant.util.SimplePatternFilesListFilter;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.file.FileReadingMessageSource;
 import org.springframework.integration.file.RecursiveDirectoryScanner;
-import org.springframework.integration.file.filters.*;
+import org.springframework.integration.file.filters.AcceptOnceFileListFilter;
+import org.springframework.integration.file.filters.ChainFileListFilter;
+import org.springframework.integration.file.filters.LastModifiedFileListFilter;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.util.ArrayList;
 
 @Component
 public class FileReadingMessageSourceBoilerplateFactory {
@@ -38,7 +42,31 @@ public class FileReadingMessageSourceBoilerplateFactory {
         }
 
         if (fileFiltersConfig.getFileModificationMinAgeSeconds() > 0) {
-            filters.addFilter(new LastModifiedFileListFilter(fileFiltersConfig.getFileModificationMinAgeSeconds()));
+            LastModifiedFileListFilter lastModifFilter = new LastModifiedFileListFilter(
+                    fileFiltersConfig.getFileModificationMinAgeSeconds());
+
+            // Fix: include empty folders removal sooner regardless modification time
+            // which is changed by its inner files removal
+            SimpleFileAppenderFilter emptyFoldersAppenderFilter = new SimpleFileAppenderFilter();
+//            lastModifFilter.addDiscardCallback(file -> {
+//                if (file.isDirectory() && file.list().length == 0) {
+//                    emptyFoldersAppenderFilter.addFileForInclusion(file);
+//                }
+//            });
+            // callback above is lost by Spring, implementing custom filter as a less efficient workaround of the workaround
+            filters.addFilter(files -> {
+                for (File file : files) {
+                    if (file.isDirectory() && file.list().length == 0) {
+                        emptyFoldersAppenderFilter.addFileForInclusion(file);
+                    }
+                }
+
+                // no real filter at all, retrieve every file
+                return Arrays.asList(files);
+            });
+
+            filters.addFilter(lastModifFilter);
+            filters.addFilter(emptyFoldersAppenderFilter);
         }
 
         filters.addFilter(new SimplePatternFilesListFilter(
