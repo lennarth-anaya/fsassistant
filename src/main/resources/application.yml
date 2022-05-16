@@ -9,15 +9,15 @@ fs-assistant:
     local-cleanup-pipe:
       task:
         # Order: <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-        cron: 0 0 8/1 * * *
+        cron: 0 0 */4 * * *
         force-suspend: false
         simulation-mode: false
-        max-messages-per-poll: 1000
+        max-messages-per-poll: 2000
       # target-volume is not necessary to cleaner task
       source-volume-meta:
         volume-ref: folderCleanup
         # next does not filter, but just keeps a max size of files to recall before potentially grab the same files again
-        max-expected-files: 1000
+        max-expected-files: 5000
         filter:
           # 172800 seconds = 2 days
           file-modification-min-age-seconds: 259200
@@ -26,3 +26,6 @@ fs-assistant:
           file-extensions:
           - "*.h264"
           - "*.avi"
+          - "*.mp4"
+          - "*.log"
+
